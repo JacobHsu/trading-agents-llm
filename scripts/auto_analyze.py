@@ -63,39 +63,79 @@ def main():
 
     # 運行分析
     trace = []
-    for i, chunk in enumerate(graph.graph.stream(init_state, **graph_args), 1):
-        trace.append(chunk)
-        if i % 5 == 0:
-            print(f"  處理步驟 {i}...")
+    try:
+        for i, chunk in enumerate(graph.graph.stream(init_state, **graph_args), 1):
+            trace.append(chunk)
+            if i % 5 == 0:
+                print(f"  處理步驟 {i}...")
+    except Exception as e:
+        print(f"\n✗ 分析過程出錯: {e}")
+        raise
 
     print(f"\n分析完成，共 {len(trace)} 個步驟")
 
+    if not trace:
+        raise RuntimeError("分析未產生任何結果")
+
     # 獲取最終狀態
     final_state = trace[-1]
+    print(f"最終狀態類型: {type(final_state)}")
+
+    # 從最終狀態中提取實際的狀態字典
+    # LangGraph 返回的是 {node_name: state_dict} 的格式
+    if isinstance(final_state, dict):
+        # 獲取最後一個節點的狀態
+        state_values = list(final_state.values())
+        if state_values:
+            actual_state = state_values[0]
+        else:
+            actual_state = final_state
+    else:
+        actual_state = final_state
+
+    print(f"實際狀態鍵值: {list(actual_state.keys()) if isinstance(actual_state, dict) else 'N/A'}")
 
     # 收集報告內容
     reports = {
-        "market_report": final_state.get("market_report", ""),
-        "sentiment_report": final_state.get("sentiment_report", ""),
-        "news_report": final_state.get("news_report", ""),
-        "fundamentals_report": final_state.get("fundamentals_report", ""),
-        "investment_plan": final_state.get("investment_plan", ""),
-        "trader_investment_plan": final_state.get("trader_investment_plan", ""),
-        "final_trade_decision": final_state.get("final_trade_decision", ""),
+        "market_report": actual_state.get("market_report", ""),
+        "sentiment_report": actual_state.get("sentiment_report", ""),
+        "news_report": actual_state.get("news_report", ""),
+        "fundamentals_report": actual_state.get("fundamentals_report", ""),
+        "investment_plan": actual_state.get("investment_plan", ""),
+        "trader_investment_plan": actual_state.get("trader_investment_plan", ""),
+        "final_trade_decision": actual_state.get("final_trade_decision", ""),
     }
+
+    # 檢查是否有任何報告內容
+    has_content = any(reports.values())
+    print(f"報告內容檢查: {'有內容' if has_content else '無內容'}")
 
     # 生成 HTML 報告
     print(f"\n生成 HTML 報告...")
-    html_generator = HTMLReportGenerator(llm=graph.quick_thinking_llm)
+    try:
+        html_generator = HTMLReportGenerator(llm=graph.quick_thinking_llm)
 
-    output_path = html_generator.generate_html(
-        ticker=args.ticker,
-        analysis_date=analysis_date,
-        reports=reports,
-        output_path=args.output
-    )
+        output_path = html_generator.generate_html(
+            ticker=args.ticker,
+            analysis_date=analysis_date,
+            reports=reports,
+            output_path=args.output
+        )
 
-    print(f"\n✓ 報告已生成: {output_path}")
+        print(f"\n✓ 報告已生成: {output_path}")
+
+        # 驗證文件是否存在
+        from pathlib import Path
+        if not Path(output_path).exists():
+            raise RuntimeError(f"報告文件未成功創建: {output_path}")
+
+        file_size = Path(output_path).stat().st_size
+        print(f"文件大小: {file_size:,} bytes")
+
+    except Exception as e:
+        print(f"\n✗ 生成 HTML 報告時出錯: {e}")
+        raise
+
     print(f"="*60)
 
     return 0
