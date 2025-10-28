@@ -5,11 +5,19 @@ from openai import OpenAI
 
 class FinancialSituationMemory:
     def __init__(self, name, config):
+        # 判斷使用哪個 embedding 模型和 API
         if config["backend_url"] == "http://localhost:11434/v1":
+            # Ollama 本地模型
             self.embedding = "nomic-embed-text"
-        else:
+            self.client = OpenAI(base_url=config["backend_url"])
+        elif config.get("llm_provider", "").lower() == "google":
+            # Google provider - embeddings 使用 OpenAI API
             self.embedding = "text-embedding-3-small"
-        self.client = OpenAI(base_url=config["backend_url"])
+            self.client = OpenAI(base_url="https://api.openai.com/v1")
+        else:
+            # 其他 provider (OpenAI, Anthropic, OpenRouter)
+            self.embedding = "text-embedding-3-small"
+            self.client = OpenAI(base_url=config["backend_url"])
         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
         self.situation_collection = self.chroma_client.create_collection(name=name)
 

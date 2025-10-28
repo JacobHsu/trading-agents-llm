@@ -9,10 +9,10 @@ DEFAULT_CONFIG = {
         "dataflows/data_cache",
     ),
     # LLM settings
-    "llm_provider": "openai",
-    "deep_think_llm": "o4-mini",
-    "quick_think_llm": "gpt-4o-mini",
-    "backend_url": "https://api.openai.com/v1",
+    "llm_provider": "google",
+    "deep_think_llm": "gemini-2.5-flash-preview-05-20",
+    "quick_think_llm": "gemini-2.0-flash",
+    "backend_url": None,  # Not needed for Google
     # Debate and discussion settings
     "max_debate_rounds": 1,
     "max_risk_discuss_rounds": 1,
@@ -23,7 +23,7 @@ DEFAULT_CONFIG = {
         "core_stock_apis": "yfinance",       # Options: yfinance, alpha_vantage, local
         "technical_indicators": "yfinance",  # Options: yfinance, alpha_vantage, local
         "fundamental_data": "alpha_vantage", # Options: openai, alpha_vantage, local
-        "news_data": "alpha_vantage",        # Options: openai, alpha_vantage, google, local
+        "news_data": "google",               # Options: google, alpha_vantage, openai, local (google works best for ETFs like SPY)
     },
     # Tool-level configuration (takes precedence over category-level)
     "tool_vendors": {

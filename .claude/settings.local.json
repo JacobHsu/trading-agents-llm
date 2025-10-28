@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/9-py/TradingAgents-CN/**)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(python test_i18n.py:*)",
+      "Bash($env:PYTHONIOENCODING=\"utf-8\")",
+      "Bash(python test_html_report.py:*)",
+      "Bash(awk:*)",
+      "Bash(python quick_test_html.py:*)",
+      "Bash(cat:*)",
+      "Bash(python:*)",
+      "Bash(timeout 15 python:*)",
+      "Bash(del check_api_keys.py test_news.py test_news_fixed.py test_news_fallback.py)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

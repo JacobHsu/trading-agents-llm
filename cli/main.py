@@ -28,6 +28,8 @@ from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
 from cli.models import AnalystType
 from cli.utils import *
+from cli.i18n import i18n
+from cli.html_report_generator import HTMLReportGenerator
 
 console = Console()
 
@@ -47,22 +49,22 @@ class MessageBuffer:
         self.final_report = None  # Store the complete final report
         self.agent_status = {
             # Analyst Team
-            "Market Analyst": "pending",
-            "Social Analyst": "pending",
-            "News Analyst": "pending",
-            "Fundamentals Analyst": "pending",
+            i18n("market_analyst"): "pending",
+            i18n("social_analyst"): "pending",
+            i18n("news_analyst"): "pending",
+            i18n("fundamentals_analyst"): "pending",
             # Research Team
-            "Bull Researcher": "pending",
-            "Bear Researcher": "pending",
-            "Research Manager": "pending",
+            i18n("bull_researcher"): "pending",
+            i18n("bear_researcher"): "pending",
+            i18n("research_manager"): "pending",
             # Trading Team
-            "Trader": "pending",
+            i18n("trader"): "pending",
             # Risk Management Team
-            "Risky Analyst": "pending",
-            "Neutral Analyst": "pending",
-            "Safe Analyst": "pending",
+            i18n("risky_analyst"): "pending",
+            i18n("neutral_analyst"): "pending",
+            i18n("safe_analyst"): "pending",
             # Portfolio Management Team
-            "Portfolio Manager": "pending",
+            i18n("portfolio_manager"): "pending",
         }
         self.current_agent = None
         self.report_sections = {
@@ -107,13 +109,13 @@ class MessageBuffer:
         if latest_section and latest_content:
             # Format the current section for display
             section_titles = {
-                "market_report": "Market Analysis",
-                "sentiment_report": "Social Sentiment",
-                "news_report": "News Analysis",
-                "fundamentals_report": "Fundamentals Analysis",
-                "investment_plan": "Research Team Decision",
-                "trader_investment_plan": "Trading Team Plan",
-                "final_trade_decision": "Portfolio Management Decision",
+                "market_report": i18n("market_analysis"),
+                "sentiment_report": i18n("social_sentiment"),
+                "news_report": i18n("news_analysis"),
+                "fundamentals_report": i18n("fundamentals_analysis"),
+                "investment_plan": i18n("research_team_decision"),
+                "trader_investment_plan": i18n("trading_team_plan"),
+                "final_trade_decision": i18n("portfolio_management_decision"),
             }
             self.current_report = (
                 f"### {section_titles[latest_section]}\n{latest_content}"
@@ -135,37 +137,37 @@ class MessageBuffer:
                 "fundamentals_report",
             ]
         ):
-            report_parts.append("## Analyst Team Reports")
+            report_parts.append(f"## {i18n('analyst_team_reports')}")
             if self.report_sections["market_report"]:
                 report_parts.append(
-                    f"### Market Analysis\n{self.report_sections['market_report']}"
+                    f"### {i18n('market_analysis')}\n{self.report_sections['market_report']}"
                 )
             if self.report_sections["sentiment_report"]:
                 report_parts.append(
-                    f"### Social Sentiment\n{self.report_sections['sentiment_report']}"
+                    f"### {i18n('social_sentiment')}\n{self.report_sections['sentiment_report']}"
                 )
             if self.report_sections["news_report"]:
                 report_parts.append(
-                    f"### News Analysis\n{self.report_sections['news_report']}"
+                    f"### {i18n('news_analysis')}\n{self.report_sections['news_report']}"
                 )
             if self.report_sections["fundamentals_report"]:
                 report_parts.append(
-                    f"### Fundamentals Analysis\n{self.report_sections['fundamentals_report']}"
+                    f"### {i18n('fundamentals_analysis')}\n{self.report_sections['fundamentals_report']}"
                 )
 
         # Research Team Reports
         if self.report_sections["investment_plan"]:
-            report_parts.append("## Research Team Decision")
+            report_parts.append(f"## {i18n('research_team_reports')}")
             report_parts.append(f"{self.report_sections['investment_plan']}")
 
         # Trading Team Reports
         if self.report_sections["trader_investment_plan"]:
-            report_parts.append("## Trading Team Plan")
+            report_parts.append(f"## {i18n('trading_team_reports')}")
             report_parts.append(f"{self.report_sections['trader_investment_plan']}")
 
         # Portfolio Management Decision
         if self.report_sections["final_trade_decision"]:
-            report_parts.append("## Portfolio Management Decision")
+            report_parts.append(f"## {i18n('portfolio_manager_reports')}")
             report_parts.append(f"{self.report_sections['final_trade_decision']}")
 
         self.final_report = "\n\n".join(report_parts) if report_parts else None
@@ -194,9 +196,9 @@ def update_display(layout, spinner_text=None):
     # Header with welcome message
     layout["header"].update(
         Panel(
-            "[bold green]Welcome to TradingAgents CLI[/bold green]\n"
-            "[dim]© [Tauric Research](https://github.com/TauricResearch)[/dim]",
-            title="Welcome to TradingAgents",
+            f"[bold green]{i18n('welcome_title')} CLI[/bold green]\n"
+            f"[dim]© [Tauric Research](https://github.com/TauricResearch)[/dim]",
+            title=i18n("welcome_title"),
             border_style="green",
             padding=(1, 2),
             expand=True,
@@ -213,22 +215,22 @@ def update_display(layout, spinner_text=None):
         padding=(0, 2),  # Add horizontal padding
         expand=True,  # Make table expand to fill available space
     )
-    progress_table.add_column("Team", style="cyan", justify="center", width=20)
-    progress_table.add_column("Agent", style="green", justify="center", width=20)
-    progress_table.add_column("Status", style="yellow", justify="center", width=20)
+    progress_table.add_column("團隊", style="cyan", justify="center", width=20)
+    progress_table.add_column("智能體", style="green", justify="center", width=20)
+    progress_table.add_column("狀態", style="yellow", justify="center", width=20)
 
     # Group agents by team
     teams = {
-        "Analyst Team": [
-            "Market Analyst",
-            "Social Analyst",
-            "News Analyst",
-            "Fundamentals Analyst",
+        i18n("analyst_team"): [
+            i18n("market_analyst"),
+            i18n("social_analyst"),
+            i18n("news_analyst"),
+            i18n("fundamentals_analyst"),
         ],
-        "Research Team": ["Bull Researcher", "Bear Researcher", "Research Manager"],
-        "Trading Team": ["Trader"],
-        "Risk Management": ["Risky Analyst", "Neutral Analyst", "Safe Analyst"],
-        "Portfolio Management": ["Portfolio Manager"],
+        i18n("research_team"): [i18n("bull_researcher"), i18n("bear_researcher"), i18n("research_manager")],
+        i18n("trading_team"): [i18n("trader")],
+        i18n("risk_management"): [i18n("risky_analyst"), i18n("neutral_analyst"), i18n("safe_analyst")],
+        i18n("portfolio_management"): [i18n("portfolio_manager")],
     }
 
     for team, agents in teams.items():
@@ -237,7 +239,7 @@ def update_display(layout, spinner_text=None):
         status = message_buffer.agent_status[first_agent]
         if status == "in_progress":
             spinner = Spinner(
-                "dots", text="[blue]in_progress[/blue]", style="bold cyan"
+                "dots", text=f"[blue]{i18n('in_progress')}[/blue]", style="bold cyan"
             )
             status_cell = spinner
         else:
@@ -246,7 +248,8 @@ def update_display(layout, spinner_text=None):
                 "completed": "green",
                 "error": "red",
             }.get(status, "white")
-            status_cell = f"[{status_color}]{status}[/{status_color}]"
+            status_text = i18n(status)  # Translate the status
+            status_cell = f"[{status_color}]{status_text}[/{status_color}]"
         progress_table.add_row(team, first_agent, status_cell)
 
         # Add remaining agents in team
@@ -254,7 +257,7 @@ def update_display(layout, spinner_text=None):
             status = message_buffer.agent_status[agent]
             if status == "in_progress":
                 spinner = Spinner(
-                    "dots", text="[blue]in_progress[/blue]", style="bold cyan"
+                    "dots", text=f"[blue]{i18n('in_progress')}[/blue]", style="bold cyan"
                 )
                 status_cell = spinner
             else:
@@ -263,14 +266,15 @@ def update_display(layout, spinner_text=None):
                     "completed": "green",
                     "error": "red",
                 }.get(status, "white")
-                status_cell = f"[{status_color}]{status}[/{status_color}]"
+                status_text = i18n(status)  # Translate the status
+                status_cell = f"[{status_color}]{status_text}[/{status_color}]"
             progress_table.add_row("", agent, status_cell)
 
         # Add horizontal line after each team
         progress_table.add_row("─" * 20, "─" * 20, "─" * 20, style="dim")
 
     layout["progress"].update(
-        Panel(progress_table, title="Progress", border_style="cyan", padding=(1, 2))
+        Panel(progress_table, title=i18n("progress"), border_style="cyan", padding=(1, 2))
     )
 
     # Messages panel showing recent messages and tool calls
@@ -351,7 +355,7 @@ def update_display(layout, spinner_text=None):
     layout["messages"].update(
         Panel(
             messages_table,
-            title="Messages & Tools",
+            title=i18n("messages_tools"),
             border_style="blue",
             padding=(1, 2),
         )
@@ -362,7 +366,7 @@ def update_display(layout, spinner_text=None):
         layout["analysis"].update(
             Panel(
                 Markdown(message_buffer.current_report),
-                title="Current Report",
+                title=i18n("current_report"),
                 border_style="green",
                 padding=(1, 2),
             )
@@ -370,8 +374,8 @@ def update_display(layout, spinner_text=None):
     else:
         layout["analysis"].update(
             Panel(
-                "[italic]Waiting for analysis report...[/italic]",
-                title="Current Report",
+                f"[italic]{i18n('waiting_for_report')}[/italic]",
+                title=i18n("current_report"),
                 border_style="green",
                 padding=(1, 2),
             )
@@ -387,9 +391,9 @@ def update_display(layout, spinner_text=None):
     )
 
     stats_table = Table(show_header=False, box=None, padding=(0, 2), expand=True)
-    stats_table.add_column("Stats", justify="center")
+    stats_table.add_column("統計", justify="center")
     stats_table.add_row(
-        f"Tool Calls: {tool_calls_count} | LLM Calls: {llm_calls_count} | Generated Reports: {reports_count}"
+        f"{i18n('tool_calls')}: {tool_calls_count} | {i18n('llm_calls')}: {llm_calls_count} | {i18n('generated_reports')}: {reports_count}"
     )
 
     layout["footer"].update(Panel(stats_table, border_style="grey50"))
@@ -403,11 +407,11 @@ def get_user_selections():
 
     # Create welcome box content
     welcome_content = f"{welcome_ascii}\n"
-    welcome_content += "[bold green]TradingAgents: Multi-Agents LLM Financial Trading Framework - CLI[/bold green]\n\n"
-    welcome_content += "[bold]Workflow Steps:[/bold]\n"
-    welcome_content += "I. Analyst Team → II. Research Team → III. Trader → IV. Risk Management → V. Portfolio Management\n\n"
+    welcome_content += f"[bold green]{i18n('welcome_header')}[/bold green]\n\n"
+    welcome_content += f"[bold]{i18n('welcome_workflow')}[/bold]\n"
+    welcome_content += f"{i18n('welcome_workflow_steps')}\n\n"
     welcome_content += (
-        "[dim]Built by [Tauric Research](https://github.com/TauricResearch)[/dim]"
+        f"[dim]{i18n('built_by')}[/dim]"
     )
 
     # Create and center the welcome box
@@ -415,8 +419,8 @@ def get_user_selections():
         welcome_content,
         border_style="green",
         padding=(1, 2),
-        title="Welcome to TradingAgents",
-        subtitle="Multi-Agents LLM Financial Trading Framework",
+        title=i18n("welcome_title"),
+        subtitle=i18n("welcome_subtitle"),
     )
     console.print(Align.center(welcome_box))
     console.print()  # Add a blank line after the welcome box
@@ -432,7 +436,7 @@ def get_user_selections():
     # Step 1: Ticker symbol
     console.print(
         create_question_box(
-            "Step 1: Ticker Symbol", "Enter the ticker symbol to analyze", "SPY"
+            i18n("step_1_title"), i18n("step_1_prompt"), "SPY"
         )
     )
     selected_ticker = get_ticker()
@@ -441,8 +445,8 @@ def get_user_selections():
     default_date = datetime.datetime.now().strftime("%Y-%m-%d")
     console.print(
         create_question_box(
-            "Step 2: Analysis Date",
-            "Enter the analysis date (YYYY-MM-DD)",
+            i18n("step_2_title"),
+            i18n("step_2_prompt") + " (YYYY-MM-DD)",
             default_date,
         )
     )
@@ -451,18 +455,18 @@ def get_user_selections():
     # Step 3: Select analysts
     console.print(
         create_question_box(
-            "Step 3: Analysts Team", "Select your LLM analyst agents for the analysis"
+            i18n("step_3_title"), i18n("step_3_prompt")
         )
     )
     selected_analysts = select_analysts()
     console.print(
-        f"[green]Selected analysts:[/green] {', '.join(analyst.value for analyst in selected_analysts)}"
+        f"[green]{i18n('selected_analysts')}:[/green] {', '.join(analyst.value for analyst in selected_analysts)}"
     )
 
     # Step 4: Research depth
     console.print(
         create_question_box(
-            "Step 4: Research Depth", "Select your research depth level"
+            i18n("step_4_title"), i18n("step_4_prompt")
         )
     )
     selected_research_depth = select_research_depth()
@@ -470,15 +474,15 @@ def get_user_selections():
     # Step 5: OpenAI backend
     console.print(
         create_question_box(
-            "Step 5: OpenAI backend", "Select which service to talk to"
+            i18n("step_5_title"), i18n("step_5_prompt")
         )
     )
     selected_llm_provider, backend_url = select_llm_provider()
-    
+
     # Step 6: Thinking agents
     console.print(
         create_question_box(
-            "Step 6: Thinking Agents", "Select your thinking agents for analysis"
+            i18n("step_6_title"), i18n("step_6_prompt")
         )
     )
     selected_shallow_thinker = select_shallow_thinking_agent(selected_llm_provider)
@@ -522,7 +526,7 @@ def get_analysis_date():
 
 def display_complete_report(final_state):
     """Display the complete analysis report with team-based panels."""
-    console.print("\n[bold green]Complete Analysis Report[/bold green]\n")
+    console.print(f"\n[bold green]{i18n('complete_analysis_report')}[/bold green]\n")
 
     # I. Analyst Team Reports
     analyst_reports = []
@@ -532,7 +536,7 @@ def display_complete_report(final_state):
         analyst_reports.append(
             Panel(
                 Markdown(final_state["market_report"]),
-                title="Market Analyst",
+                title=i18n("market_analyst"),
                 border_style="blue",
                 padding=(1, 2),
             )
@@ -543,7 +547,7 @@ def display_complete_report(final_state):
         analyst_reports.append(
             Panel(
                 Markdown(final_state["sentiment_report"]),
-                title="Social Analyst",
+                title=i18n("social_analyst"),
                 border_style="blue",
                 padding=(1, 2),
             )
@@ -554,7 +558,7 @@ def display_complete_report(final_state):
         analyst_reports.append(
             Panel(
                 Markdown(final_state["news_report"]),
-                title="News Analyst",
+                title=i18n("news_analyst"),
                 border_style="blue",
                 padding=(1, 2),
             )
@@ -565,7 +569,7 @@ def display_complete_report(final_state):
         analyst_reports.append(
             Panel(
                 Markdown(final_state["fundamentals_report"]),
-                title="Fundamentals Analyst",
+                title=i18n("fundamentals_analyst"),
                 border_style="blue",
                 padding=(1, 2),
             )
@@ -575,7 +579,7 @@ def display_complete_report(final_state):
         console.print(
             Panel(
                 Columns(analyst_reports, equal=True, expand=True),
-                title="I. Analyst Team Reports",
+                title=i18n("analyst_team_reports"),
                 border_style="cyan",
                 padding=(1, 2),
             )
@@ -591,7 +595,7 @@ def display_complete_report(final_state):
             research_reports.append(
                 Panel(
                     Markdown(debate_state["bull_history"]),
-                    title="Bull Researcher",
+                    title=i18n("bull_researcher"),
                     border_style="blue",
                     padding=(1, 2),
                 )
@@ -602,7 +606,7 @@ def display_complete_report(final_state):
             research_reports.append(
                 Panel(
                     Markdown(debate_state["bear_history"]),
-                    title="Bear Researcher",
+                    title=i18n("bear_researcher"),
                     border_style="blue",
                     padding=(1, 2),
                 )
@@ -613,7 +617,7 @@ def display_complete_report(final_state):
             research_reports.append(
                 Panel(
                     Markdown(debate_state["judge_decision"]),
-                    title="Research Manager",
+                    title=i18n("research_manager"),
                     border_style="blue",
                     padding=(1, 2),
                 )
@@ -623,7 +627,7 @@ def display_complete_report(final_state):
             console.print(
                 Panel(
                     Columns(research_reports, equal=True, expand=True),
-                    title="II. Research Team Decision",
+                    title=i18n("research_team_reports"),
                     border_style="magenta",
                     padding=(1, 2),
                 )
@@ -635,11 +639,11 @@ def display_complete_report(final_state):
             Panel(
                 Panel(
                     Markdown(final_state["trader_investment_plan"]),
-                    title="Trader",
+                    title=i18n("trader"),
                     border_style="blue",
                     padding=(1, 2),
                 ),
-                title="III. Trading Team Plan",
+                title=i18n("trading_team_reports"),
                 border_style="yellow",
                 padding=(1, 2),
             )
@@ -655,7 +659,7 @@ def display_complete_report(final_state):
             risk_reports.append(
                 Panel(
                     Markdown(risk_state["risky_history"]),
-                    title="Aggressive Analyst",
+                    title=i18n("risky_analyst"),
                     border_style="blue",
                     padding=(1, 2),
                 )
@@ -666,7 +670,7 @@ def display_complete_report(final_state):
             risk_reports.append(
                 Panel(
                     Markdown(risk_state["safe_history"]),
-                    title="Conservative Analyst",
+                    title=i18n("safe_analyst"),
                     border_style="blue",
                     padding=(1, 2),
                 )
@@ -677,7 +681,7 @@ def display_complete_report(final_state):
             risk_reports.append(
                 Panel(
                     Markdown(risk_state["neutral_history"]),
-                    title="Neutral Analyst",
+                    title=i18n("neutral_analyst"),
                     border_style="blue",
                     padding=(1, 2),
                 )
@@ -687,7 +691,7 @@ def display_complete_report(final_state):
             console.print(
                 Panel(
                     Columns(risk_reports, equal=True, expand=True),
-                    title="IV. Risk Management Team Decision",
+                    title=i18n("risk_management_reports"),
                     border_style="red",
                     padding=(1, 2),
                 )
@@ -699,11 +703,11 @@ def display_complete_report(final_state):
                 Panel(
                     Panel(
                         Markdown(risk_state["judge_decision"]),
-                        title="Portfolio Manager",
+                        title=i18n("portfolio_manager"),
                         border_style="blue",
                         padding=(1, 2),
                     ),
-                    title="V. Portfolio Manager Decision",
+                    title=i18n("portfolio_manager_reports"),
                     border_style="green",
                     padding=(1, 2),
                 )
@@ -712,7 +716,7 @@ def display_complete_report(final_state):
 
 def update_research_team_status(status):
     """Update status for all research team members and trader."""
-    research_team = ["Bull Researcher", "Bear Researcher", "Research Manager", "Trader"]
+    research_team = [i18n("bull_researcher"), i18n("bear_researcher"), i18n("research_manager"), i18n("trader")]
     for agent in research_team:
         message_buffer.update_agent_status(agent, status)
 
@@ -768,7 +772,7 @@ def run_analysis():
             func(*args, **kwargs)
             timestamp, message_type, content = obj.messages[-1]
             content = content.replace("\n", " ")  # Replace newlines with spaces
-            with open(log_file, "a") as f:
+            with open(log_file, "a", encoding="utf-8") as f:
                 f.write(f"{timestamp} [{message_type}] {content}\n")
         return wrapper
     
@@ -779,7 +783,7 @@ def run_analysis():
             func(*args, **kwargs)
             timestamp, tool_name, args = obj.tool_calls[-1]
             args_str = ", ".join(f"{k}={v}" for k, v in args.items())
-            with open(log_file, "a") as f:
+            with open(log_file, "a", encoding="utf-8") as f:
                 f.write(f"{timestamp} [Tool Call] {tool_name}({args_str})\n")
         return wrapper
 
@@ -792,7 +796,7 @@ def run_analysis():
                 content = obj.report_sections[section_name]
                 if content:
                     file_name = f"{section_name}.md"
-                    with open(report_dir / file_name, "w") as f:
+                    with open(report_dir / file_name, "w", encoding="utf-8") as f:
                         f.write(content)
         return wrapper
 
@@ -808,13 +812,13 @@ def run_analysis():
         update_display(layout)
 
         # Add initial messages
-        message_buffer.add_message("System", f"Selected ticker: {selections['ticker']}")
+        message_buffer.add_message("System", f"{i18n('selected_ticker')}: {selections['ticker']}")
         message_buffer.add_message(
-            "System", f"Analysis date: {selections['analysis_date']}"
+            "System", f"{i18n('analysis_date')}: {selections['analysis_date']}"
         )
         message_buffer.add_message(
             "System",
-            f"Selected analysts: {', '.join(analyst.value for analyst in selections['analysts'])}",
+            f"{i18n('selected_analysts')}: {', '.join(analyst.value for analyst in selections['analysts'])}",
         )
         update_display(layout)
 
@@ -835,7 +839,7 @@ def run_analysis():
 
         # Create spinner text
         spinner_text = (
-            f"Analyzing {selections['ticker']} on {selections['analysis_date']}..."
+            f"{i18n('analyzing')} {selections['ticker']} {selections['analysis_date']}..."
         )
         update_display(layout, spinner_text)
 
@@ -880,33 +884,33 @@ def run_analysis():
                     message_buffer.update_report_section(
                         "market_report", chunk["market_report"]
                     )
-                    message_buffer.update_agent_status("Market Analyst", "completed")
+                    message_buffer.update_agent_status(i18n("market_analyst"), "completed")
                     # Set next analyst to in_progress
                     if "social" in selections["analysts"]:
                         message_buffer.update_agent_status(
-                            "Social Analyst", "in_progress"
+                            i18n("social_analyst"), "in_progress"
                         )
 
                 if "sentiment_report" in chunk and chunk["sentiment_report"]:
                     message_buffer.update_report_section(
                         "sentiment_report", chunk["sentiment_report"]
                     )
-                    message_buffer.update_agent_status("Social Analyst", "completed")
+                    message_buffer.update_agent_status(i18n("social_analyst"), "completed")
                     # Set next analyst to in_progress
                     if "news" in selections["analysts"]:
                         message_buffer.update_agent_status(
-                            "News Analyst", "in_progress"
+                            i18n("news_analyst"), "in_progress"
                         )
 
                 if "news_report" in chunk and chunk["news_report"]:
                     message_buffer.update_report_section(
                         "news_report", chunk["news_report"]
                     )
-                    message_buffer.update_agent_status("News Analyst", "completed")
+                    message_buffer.update_agent_status(i18n("news_analyst"), "completed")
                     # Set next analyst to in_progress
                     if "fundamentals" in selections["analysts"]:
                         message_buffer.update_agent_status(
-                            "Fundamentals Analyst", "in_progress"
+                            i18n("fundamentals_analyst"), "in_progress"
                         )
 
                 if "fundamentals_report" in chunk and chunk["fundamentals_report"]:
@@ -914,7 +918,7 @@ def run_analysis():
                         "fundamentals_report", chunk["fundamentals_report"]
                     )
                     message_buffer.update_agent_status(
-                        "Fundamentals Analyst", "completed"
+                        i18n("fundamentals_analyst"), "completed"
                     )
                     # Set all research team members to in_progress
                     update_research_team_status("in_progress")
@@ -938,7 +942,7 @@ def run_analysis():
                             # Update research report with bull's latest analysis
                             message_buffer.update_report_section(
                                 "investment_plan",
-                                f"### Bull Researcher Analysis\n{latest_bull}",
+                                f"### {i18n('bull_researcher_analysis')}\n{latest_bull}",
                             )
 
                     # Update Bear Researcher status and report
@@ -953,7 +957,7 @@ def run_analysis():
                             # Update research report with bear's latest analysis
                             message_buffer.update_report_section(
                                 "investment_plan",
-                                f"{message_buffer.report_sections['investment_plan']}\n\n### Bear Researcher Analysis\n{latest_bear}",
+                                f"{message_buffer.report_sections['investment_plan']}\n\n### {i18n('bear_researcher_analysis')}\n{latest_bear}",
                             )
 
                     # Update Research Manager status and final decision
@@ -965,18 +969,18 @@ def run_analysis():
                         update_research_team_status("in_progress")
                         message_buffer.add_message(
                             "Reasoning",
-                            f"Research Manager: {debate_state['judge_decision']}",
+                            f"{i18n('research_manager')}: {debate_state['judge_decision']}",
                         )
                         # Update research report with final decision
                         message_buffer.update_report_section(
                             "investment_plan",
-                            f"{message_buffer.report_sections['investment_plan']}\n\n### Research Manager Decision\n{debate_state['judge_decision']}",
+                            f"{message_buffer.report_sections['investment_plan']}\n\n### {i18n('research_manager_decision')}\n{debate_state['judge_decision']}",
                         )
                         # Mark all research team members as completed
                         update_research_team_status("completed")
                         # Set first risk analyst to in_progress
                         message_buffer.update_agent_status(
-                            "Risky Analyst", "in_progress"
+                            i18n("risky_analyst"), "in_progress"
                         )
 
                 # Trading Team
@@ -988,7 +992,7 @@ def run_analysis():
                         "trader_investment_plan", chunk["trader_investment_plan"]
                     )
                     # Set first risk analyst to in_progress
-                    message_buffer.update_agent_status("Risky Analyst", "in_progress")
+                    message_buffer.update_agent_status(i18n("risky_analyst"), "in_progress")
 
                 # Risk Management Team - Handle Risk Debate State
                 if "risk_debate_state" in chunk and chunk["risk_debate_state"]:
@@ -1000,16 +1004,16 @@ def run_analysis():
                         and risk_state["current_risky_response"]
                     ):
                         message_buffer.update_agent_status(
-                            "Risky Analyst", "in_progress"
+                            i18n("risky_analyst"), "in_progress"
                         )
                         message_buffer.add_message(
                             "Reasoning",
-                            f"Risky Analyst: {risk_state['current_risky_response']}",
+                            f"{i18n('risky_analyst')}: {risk_state['current_risky_response']}",
                         )
                         # Update risk report with risky analyst's latest analysis only
                         message_buffer.update_report_section(
                             "final_trade_decision",
-                            f"### Risky Analyst Analysis\n{risk_state['current_risky_response']}",
+                            f"### {i18n('risky_analyst_analysis')}\n{risk_state['current_risky_response']}",
                         )
 
                     # Update Safe Analyst status and report
@@ -1018,16 +1022,16 @@ def run_analysis():
                         and risk_state["current_safe_response"]
                     ):
                         message_buffer.update_agent_status(
-                            "Safe Analyst", "in_progress"
+                            i18n("safe_analyst"), "in_progress"
                         )
                         message_buffer.add_message(
                             "Reasoning",
-                            f"Safe Analyst: {risk_state['current_safe_response']}",
+                            f"{i18n('safe_analyst')}: {risk_state['current_safe_response']}",
                         )
                         # Update risk report with safe analyst's latest analysis only
                         message_buffer.update_report_section(
                             "final_trade_decision",
-                            f"### Safe Analyst Analysis\n{risk_state['current_safe_response']}",
+                            f"### {i18n('safe_analyst_analysis')}\n{risk_state['current_safe_response']}",
                         )
 
                     # Update Neutral Analyst status and report
@@ -1036,40 +1040,40 @@ def run_analysis():
                         and risk_state["current_neutral_response"]
                     ):
                         message_buffer.update_agent_status(
-                            "Neutral Analyst", "in_progress"
+                            i18n("neutral_analyst"), "in_progress"
                         )
                         message_buffer.add_message(
                             "Reasoning",
-                            f"Neutral Analyst: {risk_state['current_neutral_response']}",
+                            f"{i18n('neutral_analyst')}: {risk_state['current_neutral_response']}",
                         )
                         # Update risk report with neutral analyst's latest analysis only
                         message_buffer.update_report_section(
                             "final_trade_decision",
-                            f"### Neutral Analyst Analysis\n{risk_state['current_neutral_response']}",
+                            f"### {i18n('neutral_analyst_analysis')}\n{risk_state['current_neutral_response']}",
                         )
 
                     # Update Portfolio Manager status and final decision
                     if "judge_decision" in risk_state and risk_state["judge_decision"]:
                         message_buffer.update_agent_status(
-                            "Portfolio Manager", "in_progress"
+                            i18n("portfolio_manager"), "in_progress"
                         )
                         message_buffer.add_message(
                             "Reasoning",
-                            f"Portfolio Manager: {risk_state['judge_decision']}",
+                            f"{i18n('portfolio_manager')}: {risk_state['judge_decision']}",
                         )
                         # Update risk report with final decision only
                         message_buffer.update_report_section(
                             "final_trade_decision",
-                            f"### Portfolio Manager Decision\n{risk_state['judge_decision']}",
+                            f"### {i18n('portfolio_manager')}\n{risk_state['judge_decision']}",
                         )
                         # Mark risk analysts as completed
-                        message_buffer.update_agent_status("Risky Analyst", "completed")
-                        message_buffer.update_agent_status("Safe Analyst", "completed")
+                        message_buffer.update_agent_status(i18n("risky_analyst"), "completed")
+                        message_buffer.update_agent_status(i18n("safe_analyst"), "completed")
                         message_buffer.update_agent_status(
-                            "Neutral Analyst", "completed"
+                            i18n("neutral_analyst"), "completed"
                         )
                         message_buffer.update_agent_status(
-                            "Portfolio Manager", "completed"
+                            i18n("portfolio_manager"), "completed"
                         )
 
                 # Update the display
@@ -1086,7 +1090,7 @@ def run_analysis():
             message_buffer.update_agent_status(agent, "completed")
 
         message_buffer.add_message(
-            "Analysis", f"Completed analysis for {selections['analysis_date']}"
+            "Analysis", f"{i18n('completed_analysis')} {selections['analysis_date']}"
         )
 
         # Update final report sections
@@ -1098,6 +1102,37 @@ def run_analysis():
         display_complete_report(final_state)
 
         update_display(layout)
+
+        # Exit Live context to ensure console prints are visible
+
+    # Generate HTML report outside Live context (中文版本)
+    console.print(f"\n[bold cyan]正在生成 HTML 報告...[/bold cyan]")
+    try:
+        html_generator = HTMLReportGenerator(llm=graph.quick_thinking_llm)
+
+        # 收集所有報告內容
+        reports = {
+            "market_report": final_state.get("market_report", ""),
+            "sentiment_report": final_state.get("sentiment_report", ""),
+            "news_report": final_state.get("news_report", ""),
+            "fundamentals_report": final_state.get("fundamentals_report", ""),
+            "investment_plan": final_state.get("investment_plan", ""),
+            "trader_investment_plan": final_state.get("trader_investment_plan", ""),
+            "final_trade_decision": final_state.get("final_trade_decision", ""),
+        }
+
+        # 生成 HTML 文件到根目錄 index.html (供 GitHub Pages 使用)
+        output_path = html_generator.generate_html(
+            ticker=selections["ticker"],
+            analysis_date=selections["analysis_date"],
+            reports=reports,
+            output_path="index.html"
+        )
+
+        console.print(f"[bold green]HTML 報告已保存至: {output_path}[/bold green]")
+
+    except Exception as e:
+        console.print(f"[bold red]生成 HTML 報告時發生錯誤: {e}[/bold red]")
 
 
 @app.command()
