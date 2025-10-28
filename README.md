@@ -151,6 +151,52 @@ An interface will appear showing results as they load, letting you track the age
   <img src="assets/cli/cli_transaction.png" width="100%" style="display: inline-block; margin: 0 2%;">
 </p>
 
+### 🤖 Automated Daily Reports with GitHub Actions
+
+You can set up automated daily stock analysis reports using GitHub Actions and GitHub Pages!
+
+**Features:**
+- 📊 Automatic analysis runs daily at scheduled time
+- 📄 Reports published to GitHub Pages
+- 🔄 No manual intervention required
+- 🌐 Access reports from anywhere via web browser
+
+**Quick Setup (5 minutes):**
+
+1. **Fork this repository** to your GitHub account
+
+2. **Add API Keys as Secrets:**
+   - Go to Settings → Secrets and variables → Actions
+   - Add: `GOOGLE_API_KEY`, `OPENAI_API_KEY`, `ALPHA_VANTAGE_API_KEY`
+
+3. **Enable GitHub Pages:**
+   - Go to Settings → Pages
+   - Set Source to "GitHub Actions"
+
+4. **Configure Workflow Permissions:**
+   - Settings → Actions → General
+   - Select "Read and write permissions"
+
+5. **Run the workflow:**
+   - Go to Actions tab → "Daily SPY Analysis"
+   - Click "Run workflow"
+
+**View your reports at:**
+```
+https://YOUR_USERNAME.github.io/trading-agents-llm/
+```
+
+📖 **Detailed Setup Guide:** See [QUICK_START.md](QUICK_START.md) for step-by-step instructions and [GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md) for full documentation.
+
+**Default Configuration:**
+- Runs daily at 7:00 AM Taipei Time (UTC 23:00)
+- Analyzes SPY (S&P 500 ETF)
+- Generates HTML report with technical analysis, news, and fundamentals
+
+**Customization:**
+- Edit `.github/workflows/daily-spy-analysis.yml` to change schedule or ticker
+- Modify `scripts/auto_analyze.py` to adjust analysis parameters
+
 ## TradingAgents Package
 
 ### Implementation Details
