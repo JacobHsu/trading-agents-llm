@@ -78,22 +78,71 @@ def main():
         raise RuntimeError("分析未產生任何結果")
 
     # 獲取最終狀態
+    # LangGraph stream() 返回的每個 chunk 格式為 {node_name: state_dict}
     final_state = trace[-1]
     print(f"最終狀態類型: {type(final_state)}")
 
-    # 從最終狀態中提取實際的狀態字典
-    # LangGraph 返回的是 {node_name: state_dict} 的格式
+    # 調試：打印 final_state 的內容
     if isinstance(final_state, dict):
-        # 獲取最後一個節點的狀態
-        state_values = list(final_state.values())
-        if state_values:
-            actual_state = state_values[0]
-        else:
-            actual_state = final_state
-    else:
-        actual_state = final_state
+        print(f"最終狀態鍵: {list(final_state.keys())}")
+        for key, value in final_state.items():
+            print(f"  節點 '{key}': {type(value)}")
+            if isinstance(value, dict):
+                print(f"    包含的鍵: {list(value.keys())[:10]}")  # 只顯示前 10 個
 
-    print(f"實際狀態鍵值: {list(actual_state.keys()) if isinstance(actual_state, dict) else 'N/A'}")
+    # 從 LangGraph 的 chunk 中提取實際狀態
+    # chunk 格式: {node_name: state_dict}
+    # state_dict 包含 AgentState 的所有字段（包括 messages list）
+    actual_state = None
+
+    if isinstance(final_state, dict):
+        # 方法1: 取第一個節點的狀態（通常是最後執行的節點）
+        node_names = list(final_state.keys())
+        if node_names:
+            node_name = node_names[0]
+            potential_state = final_state[node_name]
+
+            # 確保這是一個包含我們需要的字段的 dict
+            if isinstance(potential_state, dict):
+                # 檢查是否包含 AgentState 的關鍵字段
+                required_fields = ['company_of_interest', 'trade_date']
+                if all(field in potential_state for field in required_fields):
+                    actual_state = potential_state
+                    print(f"✓ 從節點 '{node_name}' 提取狀態成功")
+
+    # 方法2: 如果方法1失敗，遍歷所有 trace 尋找有效狀態
+    if actual_state is None:
+        print("警告: 使用方法1提取失敗，嘗試遍歷 trace...")
+        for i in range(len(trace) - 1, -1, -1):
+            chunk = trace[i]
+            if isinstance(chunk, dict):
+                for node_name, state in chunk.items():
+                    if isinstance(state, dict):
+                        # 檢查是否包含關鍵字段
+                        if 'company_of_interest' in state and 'trade_date' in state:
+                            actual_state = state
+                            print(f"✓ 從 trace[{i}] 節點 '{node_name}' 提取狀態成功")
+                            break
+                if actual_state:
+                    break
+
+    # 方法3: 如果仍然失敗，嘗試使用 final_state 本身
+    if actual_state is None and isinstance(final_state, dict):
+        if 'company_of_interest' in final_state and 'trade_date' in final_state:
+            actual_state = final_state
+            print("✓ 直接使用 final_state 作為狀態")
+
+    # 最終驗證
+    if not isinstance(actual_state, dict):
+        raise RuntimeError(
+            f"無法從分析結果中提取有效的狀態字典。\n"
+            f"final_state 類型: {type(final_state)}\n"
+            f"final_state 鍵: {list(final_state.keys()) if isinstance(final_state, dict) else 'N/A'}\n"
+            f"actual_state 類型: {type(actual_state)}"
+        )
+
+    print(f"\n實際狀態類型: {type(actual_state)}")
+    print(f"實際狀態包含的字段: {list(actual_state.keys())}")
 
     # 收集報告內容
     reports = {
