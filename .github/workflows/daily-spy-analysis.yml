@@ -14,10 +14,15 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -71,10 +76,18 @@ jobs:
           git add index.html
           git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: Daily SPY analysis $(date +'%Y-%m-%d')" && git push)
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Prepare GitHub Pages deployment
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          echo "📄 準備發布的文件："
+          ls -lh _site/
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          publish_branch: gh-pages
-          keep_files: false
+          path: ./_site
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+        id: deployment
