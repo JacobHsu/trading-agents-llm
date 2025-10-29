@@ -1,0 +1,58 @@
+name: Check API Keys
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-keys:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check API Keys
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+        run: |
+          echo "檢查 API Keys 是否已設置..."
+          echo ""
+
+          # Check Google API Key
+          if [ -z "$GOOGLE_API_KEY" ]; then
+            echo "❌ GOOGLE_API_KEY: 未設置"
+          elif [ "$GOOGLE_API_KEY" = "your-google-api-key" ] || [ "$GOOGLE_API_KEY" = "google_ai_api_key_placeholder" ]; then
+            echo "⚠️  GOOGLE_API_KEY: 仍是佔位符，需要替換為真實 API Key"
+          else
+            echo "✅ GOOGLE_API_KEY: 已設置 (長度: ${#GOOGLE_API_KEY} 字符)"
+          fi
+
+          # Check OpenAI API Key
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "❌ OPENAI_API_KEY: 未設置"
+          elif [ "$OPENAI_API_KEY" = "your-openai-api-key" ] || [ "$OPENAI_API_KEY" = "openai_api_key_placeholder" ]; then
+            echo "⚠️  OPENAI_API_KEY: 仍是佔位符，需要替換為真實 API Key"
+          else
+            echo "✅ OPENAI_API_KEY: 已設置 (長度: ${#OPENAI_API_KEY} 字符)"
+            # OpenAI keys should start with sk-
+            if [[ ! "$OPENAI_API_KEY" =~ ^sk- ]]; then
+              echo "⚠️  警告: OpenAI API Key 格式可能不正確（應該以 sk- 開頭）"
+            fi
+          fi
+
+          # Check Alpha Vantage API Key
+          if [ -z "$ALPHA_VANTAGE_API_KEY" ]; then
+            echo "⚠️  ALPHA_VANTAGE_API_KEY: 未設置（可選）"
+          elif [ "$ALPHA_VANTAGE_API_KEY" = "your-alpha-vantage-key" ] || [ "$ALPHA_VANTAGE_API_KEY" = "alpha_vantage_api_key_placeholder" ]; then
+            echo "⚠️  ALPHA_VANTAGE_API_KEY: 仍是佔位符"
+          else
+            echo "✅ ALPHA_VANTAGE_API_KEY: 已設置 (長度: ${#ALPHA_VANTAGE_API_KEY} 字符)"
+          fi
+
+          echo ""
+          echo "================================================"
+          echo "注意事項："
+          echo "1. 請確保從官方網站獲取正確的 API Keys"
+          echo "2. OpenAI Key 應以 'sk-' 開頭"
+          echo "3. 不要在代碼中直接寫入 API Keys"
+          echo "4. 在 GitHub Settings → Secrets 中設置"
+          echo "================================================"
