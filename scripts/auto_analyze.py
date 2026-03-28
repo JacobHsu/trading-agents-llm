@@ -11,6 +11,10 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+# 確保 UTF-8 輸出（Windows 本地 + GitHub Actions 皆相容）
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
+
 # 添加項目路徑
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -19,14 +23,12 @@ load_dotenv()
 
 from tradingagents.graph.trading_graph import TradingAgentsGraph
 from tradingagents.default_config import DEFAULT_CONFIG
-from cli.html_report_generator import HTMLReportGenerator
 
 
 def main():
     parser = argparse.ArgumentParser(description='自動化股票分析')
     parser.add_argument('--ticker', default='SPY', help='股票代碼 (默認: SPY)')
     parser.add_argument('--date', default=None, help='分析日期 YYYY-MM-DD (默認: 今天)')
-    parser.add_argument('--output', default='index.html', help='輸出文件路徑 (默認: index.html)')
     parser.add_argument('--analysts', default='market,news,fundamentals',
                        help='分析師類型，逗號分隔 (默認: market,news,fundamentals)')
 
@@ -43,8 +45,10 @@ def main():
     print(f"="*60)
     print(f"股票代碼: {args.ticker}")
     print(f"分析日期: {analysis_date}")
+    output_file = Path(__file__).parent.parent / "docs" / "README.md"
+
     print(f"分析師: {', '.join(analysts)}")
-    print(f"輸出文件: {args.output}")
+    print(f"輸出文件: {output_file}")
     print(f"="*60)
 
     # 創建配置
@@ -159,30 +163,81 @@ def main():
     has_content = any(reports.values())
     print(f"報告內容檢查: {'有內容' if has_content else '無內容'}")
 
-    # 生成 HTML 報告
-    print(f"\n生成 HTML 報告...")
+    # 生成 Markdown 報告（覆蓋輸出）
+    print(f"\n生成 Markdown 報告...")
     try:
-        html_generator = HTMLReportGenerator(llm=graph.quick_thinking_llm)
+        output_path = output_file
+        output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        output_path = html_generator.generate_html(
-            ticker=args.ticker,
-            analysis_date=analysis_date,
-            reports=reports,
-            output_path=args.output
-        )
+        def to_str(val):
+            """將 agent 輸出轉為純文字，處理 list/content block/dict。"""
+            if val is None:
+                return ""
+            if isinstance(val, str):
+                return val
+            if isinstance(val, dict):
+                # Anthropic content block: {'type': 'text', 'text': '...'}
+                return val.get("text", str(val))
+            if isinstance(val, list):
+                parts = []
+                for item in val:
+                    if isinstance(item, dict):
+                        parts.append(item.get("text", str(item)))
+                    else:
+                        parts.append(str(item))
+                return "\n".join(parts)
+            return str(val)
+
+        def translate(text):
+            """用 LLM 翻譯英文段落為繁體中文。"""
+            if not text or not text.strip():
+                return text
+            try:
+                from langchain_core.messages import HumanMessage
+                prompt = (
+                    "請將以下英文金融分析報告翻譯成繁體中文。"
+                    "保持專業術語準確，保留數字/百分比/股票代碼不變，維持原段落格式。\n\n"
+                    + text
+                )
+                response = graph.quick_thinking_llm.invoke([HumanMessage(content=prompt)])
+                return response.content if hasattr(response, "content") else str(response)
+            except Exception as e:
+                print(f"  翻譯失敗，保留原文: {e}")
+                return text
+
+        sections = [
+            ("市場分析", reports.get("market_report")),
+            ("新聞分析", reports.get("news_report")),
+            ("社交媒體情緒", reports.get("sentiment_report")),
+            ("基本面分析", reports.get("fundamentals_report")),
+            ("研究團隊投資計劃", reports.get("investment_plan")),
+            ("交易計劃", reports.get("trader_investment_plan")),
+            ("最終決策", reports.get("final_trade_decision")),
+        ]
+
+        lines = [
+            f"# {args.ticker} 投資分析報告",
+            f"",
+            f"> 分析日期: **{analysis_date}** | 生成時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            f"",
+        ]
+        for title, content in sections:
+            text = to_str(content)
+            if text.strip():
+                print(f"  翻譯 {title}...")
+                text = translate(text)
+                lines.append(f"## {title}")
+                lines.append(f"")
+                lines.append(text)
+                lines.append(f"")
+
+        output_path.write_text("\n".join(lines), encoding="utf-8")
 
         print(f"\n✓ 報告已生成: {output_path}")
-
-        # 驗證文件是否存在
-        from pathlib import Path
-        if not Path(output_path).exists():
-            raise RuntimeError(f"報告文件未成功創建: {output_path}")
-
-        file_size = Path(output_path).stat().st_size
-        print(f"文件大小: {file_size:,} bytes")
+        print(f"文件大小: {output_path.stat().st_size:,} bytes")
 
     except Exception as e:
-        print(f"\n✗ 生成 HTML 報告時出錯: {e}")
+        print(f"\n✗ 生成報告時出錯: {e}")
         raise
 
     print(f"="*60)

@@ -109,6 +109,8 @@ class HTMLReportGenerator:
         }
 
         for section_key, content in reports.items():
+            if isinstance(content, list):
+                content = "\n".join(str(item) for item in content)
             if content:
                 print(f"  翻譯 {section_names.get(section_key, section_key)}...")
                 translated_reports[section_key] = self.translate_text(content)

@@ -3,11 +3,10 @@ from .config import get_config
 
 
 def get_stock_news_openai(query, start_date, end_date):
-    config = get_config()
-    client = OpenAI(base_url=config["backend_url"])
+    client = OpenAI()  # 固定用 OpenAI（web_search_preview 是 OpenAI 專屬功能）
 
     response = client.responses.create(
-        model=config["quick_think_llm"],
+        model="gpt-4o-mini",
         input=[
             {
                 "role": "system",
@@ -39,10 +38,10 @@ def get_stock_news_openai(query, start_date, end_date):
 
 def get_global_news_openai(curr_date, look_back_days=7, limit=5):
     config = get_config()
-    client = OpenAI(base_url=config["backend_url"])
+    client = OpenAI()  # 固定用 OpenAI（web_search_preview 是 OpenAI 專屬功能）
 
     response = client.responses.create(
-        model=config["quick_think_llm"],
+        model="gpt-4o-mini",
         input=[
             {
                 "role": "system",

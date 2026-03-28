@@ -54,10 +54,11 @@ jobs:
           PYTHONIOENCODING: utf-8
           PYTHONUNBUFFERED: 1
         run: |
-          echo "開始執行 SPY 分析..."
-          python scripts/auto_analyze.py --ticker SPY --output index.html
+          TICKER="${{ github.event.inputs.ticker || 'SPY' }}"
+          echo "開始執行 ${TICKER} 分析..."
+          python scripts/auto_analyze.py --ticker ${TICKER}
           echo "檢查生成的文件..."
-          ls -lh index.html || echo "警告: index.html 未找到"
+          ls -lh docs/README.md || echo "警告: docs/README.md 未找到"
 
       - name: Upload analysis artifacts (on failure)
         if: failure()
@@ -66,21 +67,22 @@ jobs:
           name: analysis-logs
           path: |
             *.log
-            index.html
+            docs/README.md
           retention-days: 7
 
       - name: Commit and push if changed
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add index.html
+          git add docs/README.md
           git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: Daily SPY analysis $(date +'%Y-%m-%d')" && git push)
 
       - name: Prepare GitHub Pages deployment
         run: |
           mkdir -p _site
           cp index.html _site/
-          echo "📄 準備發布的文件："
+          cp -r docs _site/
+          echo "準備發布的文件："
           ls -lh _site/
 
       - name: Upload artifact for GitHub Pages
@@ -91,3 +93,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
         id: deployment
+
+      - name: Show deployed GitHub Pages URL
+        run: echo "Deployed Page URL: ${{ steps.deployment.outputs.page_url }}"

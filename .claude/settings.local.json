@@ -13,7 +13,9 @@
       "Bash(python:*)",
       "Bash(timeout 15 python:*)",
       "Bash(del check_api_keys.py test_news.py test_news_fixed.py test_news_fallback.py)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []

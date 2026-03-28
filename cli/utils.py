@@ -382,7 +382,7 @@ def select_deep_thinking_agent(provider) -> str:
     default_deep = {
         "openai": "gpt-4o",
         "anthropic": "claude-3-5-sonnet-latest",
-        "google": "gemini-2.5-flash-preview-05-20",
+        "google": "gemini-2.5-flash",
         "openrouter": "deepseek/deepseek-chat-v3-0324:free",
         "ollama": "llama3.1"
     }

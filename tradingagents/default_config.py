@@ -10,7 +10,7 @@ DEFAULT_CONFIG = {
     ),
     # LLM settings
     "llm_provider": "google",
-    "deep_think_llm": "gemini-2.5-flash-preview-05-20",
+    "deep_think_llm": "gemini-3-flash-preview",
     "quick_think_llm": "gemini-2.0-flash",
     "backend_url": None,  # Not needed for Google
     # Debate and discussion settings
